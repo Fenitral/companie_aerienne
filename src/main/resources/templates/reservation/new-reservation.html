@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Nouvelle réservation</title>
+    <script>
+    function loadProgrammes() {
+        const volId = document.getElementById("vol").value;
+
+        fetch('/reservations/programmes/' + volId)
+            .then(res => res.json())
+            .then(data => {
+                const dateSelect = document.getElementById("date");
+                const heureSelect = document.getElementById("heure");
+                const programmeSelect = document.getElementById("programmeSelect");
+
+                dateSelect.innerHTML = "";
+                heureSelect.innerHTML = "";
+                programmeSelect.innerHTML = "";
+
+                data.forEach(p => {
+                    // DATE
+                    const optionDate = document.createElement("option");
+                    optionDate.value = p.id; // Programme ID
+                    optionDate.text = p.dateDepart;
+                    dateSelect.appendChild(optionDate);
+
+                    // HEURE
+                    const optionHeure = document.createElement("option");
+                    optionHeure.value = p.heureDepart.substring(0,5);
+                    optionHeure.text = p.heureDepart.substring(0,5);
+                    heureSelect.appendChild(optionHeure);
+
+                    // PROGRAMME (hidden, for sending to backend)
+                    const optionProgramme = document.createElement("option");
+                    optionProgramme.value = p.id;
+                    optionProgramme.text = p.dateDepart + " " + p.heureDepart.substring(0,5);
+                    programmeSelect.appendChild(optionProgramme);
+                });
+
+                document.getElementById("programmeDiv").style.display = "block";
+                updateProgrammeId();
+            });
+    }
+
+    function updateProgrammeId() {
+        const dateSelect = document.getElementById("date");
+        const programmeId = document.getElementById("programmeId");
+        if (dateSelect.value) {
+            programmeId.value = dateSelect.value;
+        }
+    }
+    </script>
+</head>
+<body>
+
+<h2>Nouvelle réservation</h2>
+
+<form method="post" action="/reservations/save">
+
+    <!-- Client -->
+    <label>Client :</label>
+    <select name="clientId" required>
+        <option value="">-- Choisir un client --</option>
+        <option th:each="c : ${clients}"
+                th:value="${c.id}"
+                th:text="${c.nom}">
+        </option>
+    </select><br><br>
+
+    <!-- Vol -->
+    <label>Trajet :</label>
+    <select id="vol" name="volId" onchange="loadProgrammes()" required>
+        <option value="">-- Choisir un trajet --</option>
+        <option th:each="v : ${vols}"
+                th:value="${v.id}"
+                th:text="${v.villeDepart.nom} + ' → ' + ${v.villeArrivee.nom}">
+        </option>
+    </select><br><br>
+
+    <!-- Programme (Date, Heure) -->
+    <div id="programmeDiv" style="display:none">
+        <label>Date :</label>
+        <select id="date" onchange="updateProgrammeId()" required></select><br><br>
+
+        <label>Heure :</label>
+        <select id="heure" required></select><br><br>
+
+        <!-- ID programme envoyé au backend -->
+        <input type="hidden" name="programmeId" id="programmeId">
+        <select id="programmeSelect" style="display:none;"></select>
+    </div>
+
+    <!-- Classe -->
+    <label>Classe :</label>
+    <select name="classeId" required>
+        <option value="">-- Choisir une classe --</option>
+        <option th:each="c : ${classes}"
+                th:value="${c.id}"
+                th:text="${c.libelle}">
+        </option>
+    </select><br><br>
+
+    <!-- Nombre de billets -->
+    <label>Nombre de billets :</label>
+    <input type="number" name="nbPlaces" min="1" required><br><br>
+
+    <button type="submit">Valider</button>
+
+</form>
+
+</body>
+</html>
