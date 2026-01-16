@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des réservations</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--light-blue);
+            color: var(--dark-blue);
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: var(--primary-blue);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid var(--gray-300);
+        }
+        th {
+            background-color: var(--secondary-blue);
+            color: var(--white);
+        }
+        tr:nth-child(even) {
+            background-color: var(--gray-100);
+        }
+    </style>
+</head>
+<body>
+
+<h2>Liste des réservations</h2>
+
+<table border="1">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Vol</th>
+            <th>Classe</th>
+            <th>Nombre de places</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr th:each="res : ${reservations}">
+            <td th:text="${res.id}"></td>
+
+            <td th:text="${res.client.nom}"></td>
+
+            <td th:text="
+                ${res.volProgramme.vol.villeDepart.nom}
+                + ' → '
+                + ${res.volProgramme.vol.villeArrivee.nom}
+                + ' le '
+                + ${#temporals.format(res.volProgramme.dateDepart, 'dd/MM/yyyy')}
+            ">
+            </td>
+
+            <td th:text="${res.classe.libelle}"></td>
+
+            <td th:text="${res.nbPlaces}"></td>
+        </tr>
+    </tbody>
+</table>
+
+<br/>
+
+<a th:href="@{/reservations/new}">Nouvelle réservation</a>
+
+</body>
+</html>
